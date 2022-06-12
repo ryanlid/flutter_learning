@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_map/plugin_api.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:pedometer/pedometer.dart';
+import 'package:latlong2/latlong.dart';
 
 import 'components/Dashboard.dart';
 
@@ -41,7 +43,7 @@ class _MyHomePageState extends State<MyHomePage> {
   // 定位参数设置
   final LocationSettings locationSettings = const LocationSettings(
     accuracy: LocationAccuracy.high,
-    distanceFilter: 1,
+    distanceFilter: 10,
   );
 
   //  历史位置信息
@@ -130,11 +132,55 @@ class _MyHomePageState extends State<MyHomePage> {
     stepCountStream.listen(onStepCount).onError(onStepCountError);
   }
 
+  Widget getMap() {
+    if (position == null) return Container();
+    return FlutterMap(
+      options: MapOptions(
+        center: LatLng(position!.latitude, position!.longitude),
+        zoom: 16,
+      ),
+      layers: [
+        TileLayerOptions(
+          urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+          subdomains: ['a', 'b', 'c'],
+        ),
+        MarkerLayerOptions(markers: [
+          Marker(
+            width: 20,
+            height: 20,
+            point: LatLng(
+              position!.latitude,
+              position!.longitude,
+            ),
+            builder: (ctx) => Container(
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.blue,
+              ),
+            ),
+          )
+        ]),
+        PolygonLayerOptions(polygons: [
+          Polygon(
+            points: historyPositions
+                .map((e) => LatLng(e.latitude, e.longitude))
+                .toList(),
+            borderColor: Colors.green,
+            borderStrokeWidth: 4,
+          ),
+        ])
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
+          Container(
+            child: getMap(),
+          ),
           Align(
             alignment: Alignment.bottomCenter,
             child: Dashboard([
