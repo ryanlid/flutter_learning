@@ -160,15 +160,18 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           )
         ]),
-        PolygonLayerOptions(polygons: [
-          Polygon(
-            points: historyPositions
-                .map((e) => LatLng(e.latitude, e.longitude))
-                .toList(),
-            borderColor: Colors.green,
-            borderStrokeWidth: 4,
-          ),
-        ])
+        PolylineLayerOptions(
+          polylines: [
+            Polyline(
+              points: historyPositions
+                  .map((e) => LatLng(e.latitude, e.longitude))
+                  .toList(),
+              borderColor: Colors.red,
+              color: Colors.red,
+              borderStrokeWidth: 4,
+            ),
+          ],
+        ),
       ],
     );
   }
