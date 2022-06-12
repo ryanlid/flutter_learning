@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:pedometer/pedometer.dart';
 
 import 'components/Dashboard.dart';
@@ -30,13 +31,84 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  late StreamSubscription _stepCountSubscription;
+  // 步数
   int stepCount = 0;
+
+  // 当前位置
+  late Position? position;
+  late LocationPermission permission;
+
+  // 定位参数设置
+  final LocationSettings locationSettings = const LocationSettings(
+    accuracy: LocationAccuracy.high,
+    distanceFilter: 1,
+  );
+
+  //  历史位置信息
+  List<Position> historyPositions = [];
 
   @override
   void initState() {
     super.initState();
     initPedometer();
+    initLocation();
+  }
+
+  void updateLocation(Position? newPosition) {
+    print('当前定位 ${newPosition}');
+    setState(() {
+      position = newPosition ?? null;
+      if (newPosition != null) {
+        historyPositions.add(newPosition);
+      }
+    });
+  }
+
+  // 获取最近一次定位坐标，以及订阅位置更新
+  Future<Position?> initLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // Test if location services are enabled.
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      // Location services are not enabled don't continue
+      // accessing the position and request users of the
+      // App to enable the location services.
+      return Future.error('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        // Permissions are denied, next time you could try
+        // requesting permissions again (this is also where
+        // Android's shouldShowRequestPermissionRationale
+        // returned true. According to Android guidelines
+        // your App should show an explanatory UI now.
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      // Permissions are denied forever, handle appropriately.
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+
+    // return await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    // return await Geolocator.getLastKnownPosition();
+    // 获取 最近一次定位坐标
+    Position? position = await Geolocator.getLastKnownPosition();
+    updateLocation(position);
+
+    // 订阅位置更新
+    // subscribePosition();
+    StreamSubscription<Position> positionStream =
+        Geolocator.getPositionStream(locationSettings: locationSettings)
+            .listen(updateLocation);
+    return null;
   }
 
   void onStepCount(StepCount event) {
@@ -55,7 +127,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void initPedometer() {
     var stepCountStream = Pedometer.stepCountStream;
-    // _stepCountSubscription =
     stepCountStream.listen(onStepCount).onError(onStepCountError);
   }
 
