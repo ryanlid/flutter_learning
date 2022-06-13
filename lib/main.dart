@@ -24,8 +24,8 @@ class _MyAppState extends State<MyApp> {
     initSocketCS();
   }
 
-  void createClient(String address ,int port) {
-    _socketCS = SocketClient(address,port);
+  void createClient(String address, int port) {
+    _socketCS = SocketClient(address, port);
     initSocketCS();
   }
 
@@ -89,18 +89,20 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class SettingHomePage extends StatefulWidget {
-  Function (int port) _createServerCallback;
-  Function(String address, int port) _createClientCallback;
-  Function(BuildContext childContext) _goToChatPage;
-
-  SettingHomePage(this._createServerCallback, this._createClientCallback,
-      this._goToChatPage, {Key? key}) : super(key: key)
-
+  const SettingHomePage({Key? key}) : super(key: key);
   @override
   State<SettingHomePage> createState() => _SettingHomePageState();
 }
 
 class _SettingHomePageState extends State<SettingHomePage> {
+  Function (int port) _createServerCallback;
+  Function(String address, int port) _createClientCallback;
+  Function(BuildContext childContext) _goToChatPage;
+
+  _SettingHomePage(this._createServerCallback, this._createClientCallback,
+      this._goToChatPage);
+
+
   String ipAddress = "";
 
   final _serverPortController = TextEditingController();
@@ -199,10 +201,11 @@ class _SettingHomePageState extends State<SettingHomePage> {
           children: [
             Text("Server 端口号："),
             Expanded(
-                child: TextField(
-                  controller: _clientPortController,
-                  keyboardType: TextInputType.number,
-                ))
+              child: TextField(
+                controller: _clientPortController,
+                keyboardType: TextInputType.number,
+              ),
+            ),
           ],
         ),
         OutlinedButton(
