@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:learning/page/ChatPage.dart';
 import 'model/Message.dart';
 import 'net/Socket.dart';
 
@@ -60,7 +61,13 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  void goToChatPage(BuildContext childContext) {}
+  void goToChatPage(BuildContext childContext) {
+    Navigator.of(childContext).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => ChatPage(_message, onSendMessage),
+      ),
+    );
+  }
 
   @override
   void dispose() {
