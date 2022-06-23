@@ -1,4 +1,7 @@
+import 'dart:html';
+
 import 'package:flutter/material.dart';
+import './store/NoteStore.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,10 +14,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return NoteStore(MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Markdown Editor',
       home: const MyHomePage(),
-    )
-    );
+    ));
   }
 }
 
@@ -24,6 +26,8 @@ class MyHomePage extends StatefulWidget {
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
+
+
 
 class _MyHomePageState extends State<MyHomePage> {
   @override
